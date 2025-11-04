@@ -30,7 +30,7 @@ jobs:
           elif [ -f target/checkstyle.xml ]; then
             cp target/checkstyle.xml artifacts/checkstyle.xml
           else
-            echo "No Checkstyle report found."
+            echo "No Checkstyle report found." >&2
           fi
 
       - name: Upload Checkstyle Report
@@ -61,13 +61,15 @@ jobs:
               --sourcefiles src/main/java \
               --xml artifacts/jacoco.xml
           else
-            echo "No jacoco.exec found; tests may not have run."
+            echo "No jacoco.exec found; tests may not have run." >&2
           fi
 
       - name: Upload JaCoCo Report
         uses: actions/upload-artifact@v4
         with:
           name: jacoco.xml
-          path: ''
+          path: artifacts/jacoco.xml
+          if-no-files-found: warn
+
 
 
