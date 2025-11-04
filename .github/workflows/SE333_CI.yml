@@ -10,31 +10,34 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # 1. Checkout code
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # 2. Set up Java (JDK 23)
       - name: Set up Java
         uses: actions/setup-java@v4
         with:
-          java-version: '21'
+          java-version: '23'
           distribution: 'temurin'
           architecture: x64
 
-      # --- Static analysis FIRST (validate phase) ---
-      - name: Run Checkstyle (validate phase, do not fail build)
+      # 3. Run Checkstyle (validate phase, no build fail)
+      - name: Run Checkstyle (static analysis)
         run: |
+          echo "Running Checkstyle..."
           mvn -B -Dcheckstyle.failOnViolation=false validate checkstyle:checkstyle
-          # Copy XML to predictable artifact name
           mkdir -p artifacts
+          # Copy Checkstyle XML (support both common paths)
           if [ -f target/checkstyle-result.xml ]; then
             cp target/checkstyle-result.xml artifacts/checkstyle.xml
+          elif [ -f target/checkstyle.xml ]; then
+            cp target/checkstyle.xml artifacts/checkstyle.xml
           else
-            # Some setups write to this path, grab it if present
-            if [ -f target/checkstyle.xml ]; then
-              cp target/checkstyle.xml artifacts/checkstyle.xml
-            fi
+            echo " No Checkstyle report found!"
           fi
 
+      # 4. Upload Checkstyle report
       - name: Upload Checkstyle Report
         uses: actions/upload-artifact@v4
         with:
@@ -42,16 +45,19 @@ jobs:
           path: artifacts/checkstyle.xml
           if-no-files-found: warn
 
-      # --- Tests + Coverage (JaCoCo runs AFTER tests) ---
-      - name: Run Tests with JaCoCo
+      # 5. Run tests + JaCoCo coverage
+      - name: Run Tests and Generate JaCoCo Coverage
         run: |
+          echo "Running tests with JaCoCo..."
           mvn -B test jacoco:report
           mkdir -p artifacts
-          # Standard JaCoCo XML report location
           if [ -f target/site/jacoco/jacoco.xml ]; then
             cp target/site/jacoco/jacoco.xml artifacts/jacoco.xml
+          else
+            echo "️ No JaCoCo XML report found!"
           fi
 
+      # 6. Upload JaCoCo report
       - name: Upload JaCoCo Report
         uses: actions/upload-artifact@v4
         with:
