@@ -103,8 +103,6 @@ All GitHub Actions jobs completed successfully, confirmed by the green checkmark
 
 ---
 
-## Commit Message
 
-When submitting your work, use the following commit message format:
 
 
