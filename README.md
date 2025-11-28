@@ -1,4 +1,4 @@
-# Assignment 5 – Continuous Integration and Automated Testing
+# Continuous Integration and Automated Testing
 
 ![SE333_CI](https://github.com/rsahoo968/Assignment5_Code/actions/workflows/SE333_CI.yml/badge.svg)
 
